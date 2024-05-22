@@ -1,6 +1,6 @@
 namespace CarBuilder.Models;
 
-public class Wheels
+public class Wheel
 {
     public int Id { get; set; }
     public decimal Price { get; set; }
