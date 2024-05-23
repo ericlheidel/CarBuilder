@@ -1,3 +1,5 @@
+namespace CarBuilder.Models;
+
 public class OrderDTO
 {
     public int Id { get; set; }
