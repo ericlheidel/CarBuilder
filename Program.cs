@@ -245,4 +245,31 @@ app.MapGet("/orders", () =>
     return ordersDTO;
 });
 
+//++ /\\\\\\\\\\\\\        /\\\\\         /\\\\\\\\\\\    /\\\\\\\\\\\\\\\
+//++ \/\\\/////////\\\    /\\\///\\\     /\\\/////////\\\ \///////\\\/////
+//++  \/\\\       \/\\\  /\\\/  \///\\\  \//\\\      \///        \/\\\
+//++   \/\\\\\\\\\\\\\/  /\\\      \//\\\  \////\\\               \/\\\
+//++    \/\\\/////////   \/\\\       \/\\\     \////\\\            \/\\\
+//++     \/\\\            \//\\\      /\\\         \////\\\         \/\\\
+//++      \/\\\             \///\\\  /\\\    /\\\      \//\\\        \/\\\
+//++       \/\\\               \///\\\\\/    \///\\\\\\\\\\\/         \/\\\
+//++        \///                  \/////        \///////////           \///
+
+app.MapPost("/orders", (Order order) =>
+{
+    order.Id = orders.Max(o => o.Id) + 1;
+    order.TimeStamp = DateTime.Now;
+    orders.Add(order);
+
+    return Results.Created($"/orders/{order.Id}", new Order
+    {
+        Id = order.Id,
+        TimeStamp = order.TimeStamp,
+        WheelId = order.WheelId,
+        TechnologyId = order.TechnologyId,
+        PaintColorId = order.PaintColorId,
+        InteriorId = order.InteriorId
+    });
+});
+
 app.Run();
