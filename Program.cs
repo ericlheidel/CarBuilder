@@ -28,32 +28,43 @@ List<Interior> interiors = new List<Interior>
     }
 };
 
-List<Order> orders = new List<Order> { };
+List<Order> orders = new List<Order>
+{
+    new Order()
+    {
+        Id = 1,
+        TimeStamp = new DateTime(2024,05,01),
+        WheelId = 4,
+        TechnologyId = 4,
+        PaintColorId = 4,
+        InteriorId = 4
+    }
+};
 
 List<PaintColor> paintColors = new List<PaintColor>
 {
     new PaintColor()
     {
         Id = 1,
-        Price = 125.99M,
+        Price = 1255.99M,
         Color = "Silver"
     },
     new PaintColor()
     {
         Id = 2,
-        Price = 135.99M,
+        Price = 1355.99M,
         Color = "Midnight Blue"
     },
     new PaintColor()
     {
         Id = 3,
-        Price = 145.99M,
+        Price = 1455.99M,
         Color = "Firebrick Red"
     },
     new PaintColor()
     {
         Id = 4,
-        Price = 155.99M,
+        Price = 1555.99M,
         Color = "Spring Green"
     }
 };
@@ -180,6 +191,58 @@ app.MapGet("/wheels", () =>
         Price = w.Price,
         Style = w.Style
     });
+});
+
+app.MapGet("/orders", () =>
+{
+    List<OrderDTO> ordersDTO = new List<OrderDTO>();
+
+    foreach (Order order in orders)
+    {
+        Wheel? wheel = wheels.FirstOrDefault(w => w.Id == order.WheelId);
+        Technology? technology = technologies.FirstOrDefault(t => t.Id == order.TechnologyId);
+        PaintColor? paintColor = paintColors.FirstOrDefault(pc => pc.Id == order.PaintColorId);
+        Interior? interior = interiors.FirstOrDefault(i => i.Id == order.InteriorId);
+
+        OrderDTO orderDTO = new OrderDTO
+        {
+            Id = order.Id,
+            TimeStamp = order.TimeStamp,
+            WheelId = order.WheelId,
+            Wheel = wheel == null ? null : new WheelDTO
+            {
+                Id = wheel.Id,
+                Price = wheel.Price,
+                Style = wheel.Style
+            },
+            TechnologyId = order.TechnologyId,
+            Technology = technology == null ? null : new TechnologyDTO
+            {
+                Id = technology.Id,
+                Price = technology.Price,
+                Package = technology.Package
+            },
+            PaintColorId = order.PaintColorId,
+            PaintColor = paintColor == null ? null : new PaintColorDTO
+            {
+                Id = paintColor.Id,
+                Price = paintColor.Price,
+                Color = paintColor.Color
+            },
+            InteriorId = order.InteriorId,
+            Interior = interior == null ? null : new InteriorDTO
+            {
+                Id = interior.Id,
+                Price = interior.Price,
+                Material = interior.Material
+            }
+        };
+
+        ordersDTO.Add(orderDTO);
+
+    }
+
+    return ordersDTO;
 });
 
 app.Run();
