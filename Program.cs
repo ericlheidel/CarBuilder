@@ -33,11 +33,47 @@ List<Order> orders = new List<Order>
     new Order()
     {
         Id = 1,
-        TimeStamp = new DateTime(2024,05,01),
+        TimeStamp = null,
+        WheelId = 1,
+        TechnologyId = 1,
+        PaintColorId = 1,
+        InteriorId = 1
+    },
+    new Order()
+    {
+        Id = 2,
+        TimeStamp = null,
+        WheelId = 2,
+        TechnologyId = 2,
+        PaintColorId = 2,
+        InteriorId = 2
+    },
+    new Order()
+    {
+        Id = 3,
+        TimeStamp = null,
         WheelId = 4,
         TechnologyId = 4,
         PaintColorId = 4,
         InteriorId = 4
+    },
+    new Order()
+    {
+        Id = 4,
+        TimeStamp = null,
+        WheelId = 4,
+        TechnologyId = 4,
+        PaintColorId = 4,
+        InteriorId = 4
+    },
+    new Order()
+    {
+        Id = 5,
+        TimeStamp = new DateTime(2024,05,05),
+        WheelId = 1,
+        TechnologyId = 1,
+        PaintColorId = 1,
+        InteriorId = 1
     }
 };
 
@@ -131,6 +167,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddCors(); //!
 
 var app = builder.Build();
 
@@ -139,6 +176,13 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    app.UseCors(options => //!
+    {
+        options.AllowAnyOrigin(); //!
+        options.AllowAnyMethod(); //!
+        options.AllowAnyHeader(); //!
+    }); //!
 }
 
 app.UseHttpsRedirection();
@@ -193,11 +237,23 @@ app.MapGet("/wheels", () =>
     });
 });
 
-app.MapGet("/orders", () =>
+app.MapGet("/orders", (int? paintColorId) =>
 {
     List<OrderDTO> ordersDTO = new List<OrderDTO>();
 
-    foreach (Order order in orders)
+    List<Order> filteredOrders = orders.Where(o => !o.Fulfilled).ToList();
+
+    if (paintColorId != null)
+    {
+        filteredOrders = filteredOrders.Where(o => o.PaintColorId == paintColorId).ToList();
+
+        if (filteredOrders == null)
+        {
+            return null;
+        }
+    }
+
+    foreach (Order order in filteredOrders)
     {
         Wheel? wheel = wheels.FirstOrDefault(w => w.Id == order.WheelId);
         Technology? technology = technologies.FirstOrDefault(t => t.Id == order.TechnologyId);
@@ -235,15 +291,15 @@ app.MapGet("/orders", () =>
                 Id = interior.Id,
                 Price = interior.Price,
                 Material = interior.Material
-            }
+            },
         };
 
         ordersDTO.Add(orderDTO);
-
     }
 
-    return ordersDTO;
+    return Results.Ok(ordersDTO);
 });
+
 
 //++ /\\\\\\\\\\\\\        /\\\\\         /\\\\\\\\\\\    /\\\\\\\\\\\\\\\
 //++ \/\\\/////////\\\    /\\\///\\\     /\\\/////////\\\ \///////\\\/////
